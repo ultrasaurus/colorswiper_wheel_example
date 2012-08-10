@@ -1,13 +1,17 @@
-$ git clone git://github.com/baccigalupi/wheel.js.git
 
-$ rails new colorswiper -T -O
-$ cd colorswiper/
+Clone Wheel so it is easy to grab the library files from the repo
 
-$ git rm public/index.html
-rm 'public/index.html'
+    git clone git://github.com/baccigalupi/wheel.js.git
 
+Make a new rails app (without test-unit or database, we'll use jasmine, and prefer rspec if ruby tests are needed )
+    rails new colorswiper -T -O 
+    cd colorswiper/
 
-$ rails g controller colors
+Remove the static index page, and set up a controller instead with a index file ERb template
+    
+    rm public/index.html
+
+    rails g controller colors
       create  app/controllers/colors_controller.rb
       invoke  erb
       create    app/views/colors
@@ -19,74 +23,80 @@ $ rails g controller colors
       invoke    scss
       create      app/assets/stylesheets/colors.css.scss
 
-$ touch app/views/colors/index.html.erb
+     touch app/views/colors/index.html.erb
 
-$ cp -r ../wheel.js/lib/wheel/ vendor/assets/javascripts/wheel/
+Modify config/routes.rb so my colors index page is conveniently hosted at the root of my web app 
+    root :to => 'colors#index'
+    
+Add the wheel library into my app (*** consider hosting them via github pages for easy experimentation?)
 
-add wheel manifest into application.js (and a blank app.js which is required by wheel), so wheel is included in my index page (and any other page in this rails app)
+     cp -r ../wheel.js/lib/wheel/ vendor/assets/javascripts/wheel/
+
+Add a require for the wheel manifest into application.js, so wheel is included in my index page (and any other page in this rails app)
 
 in app/assets/javascripts/application.js, remove jquery and other defaults, only require the wheel base "manifest" 
--//= require jquery
--//= require jquery_ujs
--//= require_tree .
-+//= require wheel/manifests/base
+    -//= require jquery
+    -//= require jquery_ujs
+    -//= require_tree .
+    +//= require wheel/manifests/base
 
-Create a new file called "app.js" -- this is where the JS goes to set up the app (this is required by wheel)
+Then I need to create a new file called "app.js" -- this is where the JS goes to set up the app (this is required by wheel)
 
 I want to make a single object on the page (for now), I will call it a "patch" -- in my app this will represent a specific color that I pick by tapping and swiping (maybe later there can be more of these in this exciting color picking app)
-   I will to add three things to define my "patch" (code below)
-	- a template, which will determine the structure of the HTML
-	- a css file, which will determine the default colors, fonts, layout, etc.
-	- a javascript file, which will contain the behavior
 
-Then I "build" an instance of a Patch in the app.js file, after setting up minimal wheel app stuff
+I will to add three things to define my "patch" (code below)
+* a template, which will determine the structure of the HTML
+* a css file, which will determine the default colors, fonts, layout, etc.
+* a javascript file, which will contain the behavior
+
+Then I "build" an instance of a Patch in the app.js file, after setting up minimal wheel app stuff in app.js
 
 ---- app/assets/javascripts/app.js ----
 
-// Require all the js files that define your application logic
-//= require ./patch
+    // Require all the js files that define your application logic
+    //= require ./patch
 
-$(document).ready(function() {
-  // We don't need a full app object with all the extras for this app ...
-  // so we are going to fake it out. The main thing we need is the templates
-  window.app = {
-    templates: Wheel.Templates.build(),
-    eventManager: (Modernizr.touch ? Wheel.TouchManager : Wheel.MouseManager).build()
-  };
-  window.app.templates.gather(); // get them from the DOM
-  // now the templates are available to all the views
+    $(document).ready(function() {
+      // We don't need a full app object with all the extras for this app ...
+      // so we are going to fake it out. The main thing we need is the templates
+      window.app = {
+        templates: Wheel.Templates.build(),
+        eventManager: (Modernizr.touch ? Wheel.TouchManager : Wheel.MouseManager).build()
+      };
+      window.app.templates.gather(); // get them from the DOM
+      // now the templates are available to all the views
 
-  // Here we are building a single view, and giving it a parent DOM element.
-  // That means that it will automatically append the view to that dom element. Yay!
-  var view = Patch.build({parent: $(document.body), color_text: 'color'});
-});
+      // Here we are building a single view, and giving it a parent DOM element.
+      // That means that it will automatically append the view to that dom element. Yay!
+      var view = Patch.build({parent: $(document.body), color_text: 'color'});
+    });
 
 
 -- app/views/colors/index.html.erb, I added the template below  ** does the template really belong in my index file?
-<script class='template' type="text/html" name='Patch'>
-  <div class='patch'>
-    <div class='color_text'>{{color_text}}</div>
-  </div>
-</script>
+    <script class='template' type="text/html" name='Patch'>
+      <div class='patch'>
+        <div class='color_text'>{{color_text}}</div>
+      </div>
+    </script>
 
 
 -- app/assets/stylesheets/patch.css.scss 
-.patch {
-  width: 200px;
-  height: 275px;
-  background-color: #aaf;
-  margin: 10px;
+    .patch {
+      width: 200px;
+      height: 275px;
+      background-color: #aaf;
+      margin: 10px;
 
-  .color_text {
-    height: 100px;
-    width: 100px;
-    font-size: 24px;
-    line-height: 24px;
-    margin: 0 auto;
-    text-align: center;
-    margin-top: 20px;
-  }
-}
+      .color_text {
+        height: 100px;
+        width: 100px;
+        font-size: 24px;
+        line-height: 24px;
+        margin: 0 auto;
+        text-align: center;
+        margin-top: 20px;
+      }
+    }
 
 -- app/assets/javascripts/patch.js
 Wheel.View.subclass('Patch');

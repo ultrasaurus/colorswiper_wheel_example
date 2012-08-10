@@ -101,35 +101,35 @@ Then I "build" an instance of a Patch in the app.js file, after setting up minim
 -- app/assets/javascripts/patch.js
 Wheel.View.subclass('Patch');
 
-== adding interactivity ==
+== adding interactivity 
 
 I modified the Patch class to listen for a 'tap' (which automatically registers as a click on a desktop browser) and change the color via css
 
-Wheel.View.subclass('Patch', {
+    Wheel.View.subclass('Patch', {
 
-  // this is where we can add interactions
-  listen: function() {
-    this.$.on('tap', this.onTap.bind(this));
-  },
+      // this is where we can add interactions
+      listen: function() {
+        this.$.on('tap', this.onTap.bind(this));
+      },
 
-  onTap: function(e) {
-    e.stopPropagation();
-    console.log('tap')
+      onTap: function(e) {
+        e.stopPropagation();
+        console.log('tap')
 
-    var red = Math.floor(Math.random()*10);
-    var green = Math.floor(Math.random()*10);
-    var blue = Math.floor(Math.random()*10);
-    this.color_text = "#" + red + green + blue
-    console.log(this.color_text)
+        var red = Math.floor(Math.random()*10);
+        var green = Math.floor(Math.random()*10);
+        var blue = Math.floor(Math.random()*10);
+        this.color_text = "#" + red + green + blue
+        console.log(this.color_text)
 
-    this.$.css('background-color', this.color_text)
-  }
-
-
-});
+        this.$.css('background-color', this.color_text)
+      }
 
 
-== questions ==
+    });
+
+
+== questions 
 
 * How do I re-render the template to make the text change auto-magically from the instance variable?
 * can I bind the css to my instance variable too?
